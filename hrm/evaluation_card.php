@@ -417,6 +417,60 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
+	// Custom code for showing competencies achievement precentage
+	print '<div class="arearef heightref valignmiddle centpercent">';
+	if ($object->status == Evaluation::STATUS_CLOSED) {
+		$sql = 'select';
+
+		$sql .= ' AVG (CASE';
+		$sql .= ' WHEN ed.rankorder >= ed.required_rank THEN 1';
+		$sql .= ' WHEN ed.rankorder < ed.required_rank THEN 0';
+		$sql .= ' END) AS "competenciesAchievement",';
+
+		$sql .= ' AVG (CASE';
+		$sql .= ' WHEN ed.rankorder >= ed.required_rank AND s.skill_type = 0 THEN 1';
+		$sql .= ' WHEN ed.rankorder < ed.required_rank AND s.skill_type = 0 THEN 0';
+		$sql .= ' END) AS "ccCompetenciesAchievement",';
+
+		$sql .= ' AVG (CASE';
+		$sql .= ' WHEN ed.rankorder >= ed.required_rank AND s.skill_type = 1 THEN 1';
+		$sql .= ' WHEN ed.rankorder < ed.required_rank AND s.skill_type = 1 THEN 0';
+		$sql .= ' END) AS "hsCompetenciesAchievement",';
+
+		$sql .= ' AVG (CASE';
+		$sql .= ' WHEN ed.rankorder >= ed.required_rank AND s.skill_type = 9 THEN 1';
+		$sql .= ' WHEN ed.rankorder < ed.required_rank AND s.skill_type = 9 THEN 0';
+		$sql .= ' END) AS "ssCompetenciesAchievement"';
+
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'hrm_evaluation as e';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_evaluationdet as ed ON  e.rowid = ed.fk_evaluation';
+		$sql .= ' JOIN llx_hrm_skill AS s ON ed.fk_skill = s.rowid';
+
+		$sql .= " WHERE e.rowid =" . ((int) $object->id);
+
+		$resql = $db->query($sql);
+
+		if ($resql) {
+			while ($obj = $db->fetch_object($resql)) {
+				print '<div class="photoref" style="margin-bottom: 2rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Competencies Achievement</div>';
+				print '<h1 class="valuefield" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">' . round(($obj->competenciesAchievement * 100), 2) . '%</h1></div>';
+
+				print '<div class="photoref" style="margin-bottom: 2rem; margin-left: 1rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Company Cultures Achievement</div>';
+				print '<h1 class="valuefield" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">' . round(($obj->ccCompetenciesAchievement * 100), 2) . '%</h1></div>';
+
+				print '<div class="photoref" style="margin-bottom: 2rem; margin-left: 1rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Hard Skills Achievement</div>';
+				print '<h1 class="valuefield" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">' . round(($obj->hsCompetenciesAchievement * 100), 2) . '%</h1></div>';
+
+				print '<div class="photoref" style="margin-bottom: 2rem; margin-left: 1rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Soft Skills Achievement</div>';
+				print '<h1 class="valuefield" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">' . round(($obj->ssCompetenciesAchievement * 100), 2) . '%</h1></div>';
+			}
+		}
+	} else {
+		print '<div class="photoref" style="margin-bottom: 2rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Competencies Achievement</div>';
+		print '<div class="" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">Evaluation has not been closed</div></div>';
+	}
+	print '</div>';
+
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
