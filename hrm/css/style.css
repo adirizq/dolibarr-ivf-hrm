@@ -128,3 +128,52 @@ span.bubble {
 	height:20px;
 	border-radius:20px;
 }
+
+
+/* Custom CSS */
+span.diffnote-custom {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 1.5em;
+	background: #c3e6cb;
+	width: 42px;
+	height: 42px;
+	overflow: hidden;
+	border: none;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+span.greater {
+	background: #C5EEE4;
+	color: #3DC6A6;
+	border: 3px solid #3DC6A6;
+}
+
+span.pass {
+	background: #C5EEE4;
+	color: #3DC6A6;
+	border: 3px solid #3DC6A6;
+}
+
+span.fail {
+	background: #FEC7C4;
+	color: #FD443A;
+	border: 3px solid #FD443A;
+}
+
+.scaled-svg {
+	scale: 0.9;
+}
+
+span.diffnote-custom.little {
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	border-width: 3px;
+}
+
+.scaled-svg-small {
+	scale: 0.5;
+}

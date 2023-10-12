@@ -100,30 +100,48 @@ function evaluationPrepareHead($object)
 function GetLegendSkills()
 {
 	global $langs;
-	$legendSkills = '<div style="font-style:italic;">
-		' . $langs->trans('legend') . '
-		<table class="border" width="100%">
-			<tr>
-				<td><span style="vertical-align:middle" class="toohappy diffnote little"></span>
-				' . $langs->trans('CompetenceAcquiredByOneOrMore') . '</td>
-			</tr>
-			<tr>
-				<td><span style="vertical-align:middle" class="veryhappy diffnote little"></span>
-					' . $langs->trans('MaxlevelGreaterThan') . '</td>
-			</tr>
-			<tr>
-				<td><span style="vertical-align:middle" class="happy diffnote little"></span>
-					' . $langs->trans('MaxLevelEqualTo') . '</td>
-			</tr>
-			<tr>
-				<td><span style="vertical-align:middle" class="sad diffnote little"></span>
-					' . $langs->trans('MaxLevelLowerThan') . '</td>
-			</tr>
-			<tr>
-				<td><span style="vertical-align:middle" class="toosad diffnote little"></span>
-					' . $langs->trans('SkillNotAcquired') . '</td>
-			</tr>
-		</table>
-</div>';
+	
+	// Original code
+	// $legendSkills = '<div style="font-style:italic;">
+	// 	' . $langs->trans('legend') . '
+	// 	<table class="border" width="100%">
+	// 		<tr>
+	// 			<td><span style="vertical-align:middle" class="toohappy diffnote little"></span>
+	// 			' . $langs->trans('CompetenceAcquiredByOneOrMore') . '</td>
+	// 		</tr>
+	// 		<tr>
+	// 			<td><span style="vertical-align:middle" class="veryhappy diffnote little"></span>
+	// 				' . $langs->trans('MaxlevelGreaterThan') . '</td>
+	// 		</tr>
+	// 		<tr>
+	// 			<td><span style="vertical-align:middle" class="happy diffnote little"></span>
+	// 				' . $langs->trans('MaxLevelEqualTo') . '</td>
+	// 		</tr>
+	// 		<tr>
+	// 			<td><span style="vertical-align:middle" class="sad diffnote little"></span>
+	// 				' . $langs->trans('MaxLevelLowerThan') . '</td>
+	// 		</tr>
+	// 		<tr>
+	// 			<td><span style="vertical-align:middle" class="toosad diffnote little"></span>
+	// 				' . $langs->trans('SkillNotAcquired') . '</td>
+	// 		</tr>
+	// 	</table>
+	// </div>';
+
+	# Custom legend
+	$legendSkills = '<div style="font-style:italic;">' . $langs->trans('legend') . '
+						<table class="border" width="100%">
+							<tr>
+								<td><span style="vertical-align:middle" class="greater diffnote-custom little"><svg class="scaled-svg-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12.3657 0.888071C12.6127 0.352732 13.1484 0 13.75 0C14.9922 0 15.9723 0.358596 16.4904 1.29245C16.7159 1.69889 16.8037 2.13526 16.8438 2.51718C16.8826 2.88736 16.8826 3.28115 16.8826 3.62846L16.8825 7H20.0164C21.854 7 23.2408 8.64775 22.9651 10.4549L21.5921 19.4549C21.3697 20.9128 20.1225 22 18.6434 22H8L8 9H8.37734L12.3657 0.888071Z" fill="#3DC6A6"></path> <path d="M6 9H3.98322C2.32771 9 1 10.3511 1 12V19C1 20.6489 2.32771 22 3.98322 22H6L6 9Z" fill="#3DC6A6"></path></g></svg></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxlevelGreaterThan') . '</td>
+							</tr>
+							<tr>
+								<td><span style="vertical-align:middle" class="pass diffnote-custom little"><svg class="scaled-svg-small" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path stroke="#3DC6A6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 5L8 15l-5-4"></path></g></svg></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxLevelEqualTo') . '</td>
+							</tr>
+							<tr>
+								<td><span style="vertical-align:middle" class="fail diffnote-custom little"></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxLevelLowerThan') . '</td>
+							</tr>
+						</table>
+					</div>';
+
 	return $legendSkills;
 }
