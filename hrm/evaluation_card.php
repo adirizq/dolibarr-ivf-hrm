@@ -418,7 +418,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	// Custom code for showing competencies achievement precentage
-	print '<div class="arearef heightref valignmiddle centpercent">';
+	print '<div class="arearef heightref valignmiddle centpercent" style="display: table; border-spacing: 20px; margin-left: -20px; margin-right: -20px; margin-top: -20px; margin-bottom-20px">';
+
 	if ($object->status == Evaluation::STATUS_CLOSED) {
 		$sql = 'select';
 
