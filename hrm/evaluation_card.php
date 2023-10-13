@@ -631,7 +631,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					$content = $obj->userRankForSkill - $obj->required_rank;
 				}
 
-				$Tab[$num]->result = '<span title="'.$title.'" class="classfortooltip ' . $class . ' note">&nbsp;</span>';
+				$Tab[$num]->result = '<span title="'.$title.'" class="classfortooltip ' . $class . ' note">' . $content . '</span>';
 
 				$num++;
 			}
