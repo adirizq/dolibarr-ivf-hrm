@@ -167,7 +167,8 @@ if ($id > 0 || !empty($ref)) {
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_user ON (skdet_user.fk_skill = sk.rowid AND skdet_user.rankorder = ed.rankorder)';
 		//$sql .= "  LEFT JOIN " . MAIN_DB_PREFIX . "hrm_skillrank as skr ON (j.rowid = skr.fk_object AND skr.fk_skill = ed.fk_skill AND skr.objecttype = 'job')";
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_required ON (skdet_required.fk_skill = sk.rowid AND skdet_required.rankorder = ed.required_rank)';
-		$sql .= " WHERE e.rowid =" . ((int) $object->id);
+		$sql .= "  WHERE e.rowid =" . ((int) $object->id);
+		$sql .= "  AND ed.rankorder >= 0"; // custom code
 
 		//      echo $sql;
 

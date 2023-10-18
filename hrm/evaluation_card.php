@@ -216,6 +216,23 @@ if (empty($reshook)) {
 		// no update here we just change the evaluation status
 		$object->setStatut(Evaluation::STATUS_VALIDATED);
 	}
+
+	// custom code for hiding skill (set skill to -1)
+	if ($action == 'hide_skill') {
+		$result = $object->getLinesArray();
+		if ($result < 0) {
+			dol_print_error($db, $object->error, $object->errors);
+		}
+		
+		foreach ($object->lines as $line) {
+			if ($line->id == GETPOST('skill_id', 'int')) {
+				$line->rankorder = -1;
+				$line->update($user);
+			}
+		}
+
+		header('Location: ' . $_SERVER['HTTP_REFERER']);
+	}
 }
 
 
@@ -420,7 +437,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Custom code for showing competencies achievement precentage
 	print '<div class="arearef heightref valignmiddle centpercent" style="display: table; border-spacing: 20px; margin-left: -20px; margin-right: -20px; margin-top: -20px; margin-bottom-20px">';
 
-	if ($object->status == Evaluation::STATUS_CLOSED) {
+	if ($object->status != Evaluation::STATUS_DRAFT) {
 		$sql = 'select';
 
 		$sql .= ' AVG (CASE';
@@ -448,6 +465,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$sql .= ' JOIN llx_hrm_skill AS s ON ed.fk_skill = s.rowid';
 
 		$sql .= " WHERE e.rowid =" . ((int) $object->id);
+		$sql .= " AND ed.rankorder >= 0";
 
 		$resql = $db->query($sql);
 
@@ -468,7 +486,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	} else {
 		print '<div class="photoref" style="margin-bottom: 2rem; padding-left: 1rem; padding-right: 1rem;"><div class="titlefield fieldname_description tdtop" style="text-align:start;">Competencies Achievement</div>';
-		print '<div class="" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">Evaluation has not been closed</div></div>';
+		print '<div class="" style="text-align:start; margin-top: 0.3rem !important; margin-bottom:0 !important; color: var(--colortexttitlenotab);">Evaluation has not been validated</div></div>';
 	}
 	print '</div>';
 
@@ -564,6 +582,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Recovery of skills related to this evaluation
 
 		$sql = 'select';
+		$sql .= '  ed.rowid as id,'; // custom code
 		$sql .= '  e.ref,';
 		$sql .= '  e.date_creation,';
 		$sql .= '  e.fk_job,';
@@ -589,7 +608,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_user ON (skdet_user.fk_skill = sk.rowid AND skdet_user.rankorder = ed.rankorder)';
 		//$sql .= "  LEFT JOIN " . MAIN_DB_PREFIX . "hrm_skillrank as skr ON (j.rowid = skr.fk_object AND skr.fk_skill = ed.fk_skill AND skr.objecttype = 'job')";
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_required ON (skdet_required.fk_skill = sk.rowid AND skdet_required.rankorder = ed.required_rank)';
-		$sql .= " WHERE e.rowid =" . ((int) $object->id);
+		$sql .= "  WHERE e.rowid =" . ((int) $object->id);
+		$sql .= "  AND ed.rankorder >= 0"; // custom code
 
 		//      echo $sql;
 
@@ -601,6 +621,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			while ($obj = $db->fetch_object($resql)) {
 				$Tab[$num] = new stdClass();
 				$class = '';
+				$Tab[$num]->id = $obj->id; // custom code
 				$Tab[$num]->skill_type = $obj->skill_type;
 				$Tab[$num]->skill_id = $obj->fk_skill;
 				$Tab[$num]->skilllabel = $obj->skilllabel;
@@ -650,6 +671,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<th style="width:auto;text-align:center" class="liste_titre">' . $langs->trans("EmployeeRank") . '</th>';
 			print '<th style="width:auto;text-align:center" class="liste_titre">' . $langs->trans("RequiredRank") . '</th>';
 			print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("Result") . ' ' .$form->textwithpicto('', GetLegendSkills(), 1) .'</th>';
+			if ($object->status != Evaluation::STATUS_CLOSED){
+				print '<th class="linecoldelete"></th>';
+			}
 			print '</tr>';
 
 			$sk = new Skill($db);
@@ -662,6 +686,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print ' <td align="center">' . $t->userRankForSkill . '</td>';
 				print ' <td align="center">' . $t->required_rank . '</td>';
 				print ' <td>' . $t->result . '</td>';
+				if ($object->status != Evaluation::STATUS_CLOSED){
+					print '<td class="linecoldelete">';
+					print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?skill_id=' . $t->id . '&amp;id=' . $object->id . '&amp;action=hide_skill' . '">';
+					print img_delete();
+					print '</a>';
+					print '</td>';
+				}
 				print '</tr>';
 			}
 
