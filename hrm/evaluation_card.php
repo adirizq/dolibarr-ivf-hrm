@@ -217,22 +217,6 @@ if (empty($reshook)) {
 		$object->setStatut(Evaluation::STATUS_VALIDATED);
 	}
 
-	// custom code for hiding skill (set skill to -1)
-	if ($action == 'hide_skill') {
-		$result = $object->getLinesArray();
-		if ($result < 0) {
-			dol_print_error($db, $object->error, $object->errors);
-		}
-		
-		foreach ($object->lines as $line) {
-			if ($line->id == GETPOST('skill_id', 'int')) {
-				$line->rankorder = -1;
-				$line->update($user);
-			}
-		}
-
-		header('Location: ' . $_SERVER['HTTP_REFERER']);
-	}
 }
 
 
@@ -678,9 +662,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<th style="width:auto;text-align:center" class="liste_titre">' . $langs->trans("EmployeeRank") . '</th>';
 			print '<th style="width:auto;text-align:center" class="liste_titre">' . $langs->trans("RequiredRank") . '</th>';
 			print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("Result") . ' ' .$form->textwithpicto('', GetLegendSkills(), 1) .'</th>';
-			if ($object->status != Evaluation::STATUS_CLOSED){
-				print '<th class="linecoldelete"></th>';
-			}
 			print '</tr>';
 
 			$sk = new Skill($db);
@@ -693,13 +674,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print ' <td align="center">' . $t->userRankForSkill . '</td>';
 				print ' <td align="center">' . $t->required_rank . '</td>';
 				print ' <td>' . $t->result . '</td>';
-				if ($object->status != Evaluation::STATUS_CLOSED){
-					print '<td class="linecoldelete">';
-					print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?skill_id=' . $t->id . '&amp;id=' . $object->id . '&amp;action=hide_skill' . '">';
-					print img_delete();
-					print '</a>';
-					print '</td>';
-				}
 				print '</tr>';
 			}
 
