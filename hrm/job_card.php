@@ -34,6 +34,8 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/hrm/class/job.class.php';
 require_once DOL_DOCUMENT_ROOT . '/hrm/lib/hrm_job.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/hrm/class/skill.class.php'; // additional code
+require_once DOL_DOCUMENT_ROOT . '/hrm/class/skillrank.class.php'; // additional code
 
 // Load translation files required by the page
 $langs->loadLangs(array('hrm', 'other', 'products'));   // why products?
@@ -139,6 +141,30 @@ if (empty($reshook)) {
 	}
 	if ($action == 'classin' && $permissiontoadd) {
 		$object->setProject(GETPOST('projectid', 'int'));
+	}
+
+	// custom code for hiding skill
+	if ($action == 'toggle_hide_skill') {
+		$skill_id = GETPOST('skill_id', 'int');
+
+		$hidden_skills = $object->array_options['options_hiddenskill'];
+		$hidden_skills_arr = ($hidden_skills != "") ? explode(',', $hidden_skills) : array();
+
+		print_r($hidden_skills_arr);
+
+		if(in_array($skill_id, $hidden_skills_arr)) {
+			$hidden_skills_arr = array_diff($hidden_skills_arr, array($skill_id));
+		} else {
+			$hidden_skills_arr[] = $skill_id;
+		}
+		
+		sort($hidden_skills_arr);
+		$hidden_skills = implode(',', $hidden_skills_arr);
+
+		$object->array_options['options_hiddenskill'] = $hidden_skills;
+		$object->update($user);
+
+		header('Location: ' . $_SERVER['HTTP_REFERER']);
 	}
 
 	// Actions to send emails
@@ -418,6 +444,156 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</div>' . "\n";
 	}
+
+	// Custom code
+
+	function GetLegendSkills()
+	{
+		global $langs;
+
+		$legendSkills = '<div style="font-style:italic;">' . $langs->trans('legend') . '
+			<table class="border" width="100%">
+				<tr>
+					<td><span style="vertical-align:middle" class="greater diffnote-custom little"><svg class="scaled-svg-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12.3657 0.888071C12.6127 0.352732 13.1484 0 13.75 0C14.9922 0 15.9723 0.358596 16.4904 1.29245C16.7159 1.69889 16.8037 2.13526 16.8438 2.51718C16.8826 2.88736 16.8826 3.28115 16.8826 3.62846L16.8825 7H20.0164C21.854 7 23.2408 8.64775 22.9651 10.4549L21.5921 19.4549C21.3697 20.9128 20.1225 22 18.6434 22H8L8 9H8.37734L12.3657 0.888071Z" fill="#3DC6A6"></path> <path d="M6 9H3.98322C2.32771 9 1 10.3511 1 12V19C1 20.6489 2.32771 22 3.98322 22H6L6 9Z" fill="#3DC6A6"></path></g></svg></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxlevelGreaterThan') . '</td>
+				</tr>
+				<tr>
+					<td><span style="vertical-align:middle" class="pass diffnote-custom little"><svg class="scaled-svg-small" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path stroke="#3DC6A6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 5L8 15l-5-4"></path></g></svg></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxLevelEqualTo') . '</td>
+				</tr>
+				<tr>
+					<td><span style="vertical-align:middle" class="fail diffnote-custom little"></span>&nbsp;&nbsp;&nbsp;' . $langs->trans('MaxLevelLowerThan') . '</td>
+				</tr>
+			</table>
+			</div>';
+		return $legendSkills;
+	}
+
+
+	// Hide/show skill icon
+
+	$eye_slash = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16"> <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/> <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"/> </svg>';
+	$eye_open = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16"> <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/> <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/> </svg>';
+
+	
+	// Hide/show skill feature
+
+	print '<h1>'. $object->array_options["options_hiddenskill"] . '</h1>';
+	print '<h2 style="margin-top: 2rem; color: var(--colortexttitlenotab);">Skills Achievement</h2>';
+
+	$sql = 'SELECT';
+	$sql .= '  s.rowid AS "skill_id",';
+	$sql .= '  j.rowid AS "job_id",';
+	$sql .= '  j.label AS "job_position",';
+	$sql .= '  s.label AS "skill_code",';
+	$sql .= '  s.skill_type,';
+	$sql .= '  s.description AS "skill_description",';
+	$sql .= '  es.required_rank,';
+	$sql .= '  ROUND(AVG(es.rankorder),2) AS "average_skill_score",';
+	$sql .= '  CONCAT(SUM(CASE WHEN es.rankorder >= es.required_rank THEN 1 ELSE 0 END), "/", COUNT(u.rowid)) AS "skill_achievement_ratio",';
+	$sql .= '  FIND_IN_SET(s.rowid, je.hiddenskill) != 0 AS "hidden"';
+
+	$sql .= '  FROM ' . MAIN_DB_PREFIX . 'hrm_evaluationdet as es';
+	$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_evaluation as e ON es.fk_evaluation = e.rowid';
+	$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'user u ON e.fk_user = u.rowid';
+	$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skill s ON es.fk_skill = s.rowid';
+	$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_job j ON e.fk_job = j.rowid';
+	$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_job_extrafields je ON j.rowid = je.fk_object';
+	$sql .= "  WHERE j.rowid =" . ((int) $object->id);
+	$sql .= "  GROUP BY j.rowid, s.rowid";
+
+	//      echo $sql;
+
+	$resql = $db->query($sql);
+	$Tab = array();
+
+	if ($resql) {
+		$num = 0;
+		while ($obj = $db->fetch_object($resql)) {
+			$Tab[$num] = new stdClass();
+			$class = '';
+			$Tab[$num]->id = $obj->id; 
+			$Tab[$num]->skill_type = $obj->skill_type;
+			$Tab[$num]->skill_id = $obj->skill_id;
+			$Tab[$num]->skilllabel = $obj->skill_code;
+			$Tab[$num]->description = $obj->skill_description;
+			$Tab[$num]->hidden = $obj->hidden;
+			$Tab[$num]->userRankForSkill = '<span title="' . $obj->userRankForSkillDesc . '" class="radio_js_bloc_number TNote_1">' . $obj->average_skill_score . '</span>';
+			$Tab[$num]->required_rank = '<span title="' . $obj->required_rank_desc . '" class="radio_js_bloc_number TNote_1">' . $obj->required_rank . '</span>';
+			$Tab[$num]->skill_achievement_ratio = '<span class="radio_js_bloc_number TNote_1">' . $obj->skill_achievement_ratio . '</span>';
+
+			if ($obj->average_skill_score > $obj->required_rank) {
+				$title = $langs->trans('MaxlevelGreaterThanShort');
+				$class .= 'greater diffnote-custom';
+				$content = '<svg class="scaled-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12.3657 0.888071C12.6127 0.352732 13.1484 0 13.75 0C14.9922 0 15.9723 0.358596 16.4904 1.29245C16.7159 1.69889 16.8037 2.13526 16.8438 2.51718C16.8826 2.88736 16.8826 3.28115 16.8826 3.62846L16.8825 7H20.0164C21.854 7 23.2408 8.64775 22.9651 10.4549L21.5921 19.4549C21.3697 20.9128 20.1225 22 18.6434 22H8L8 9H8.37734L12.3657 0.888071Z" fill="#3DC6A6"></path> <path d="M6 9H3.98322C2.32771 9 1 10.3511 1 12V19C1 20.6489 2.32771 22 3.98322 22H6L6 9Z" fill="#3DC6A6"></path> </g></svg>';
+			} elseif ($obj->average_skill_score == $obj->required_rank) {
+				$title = $langs->trans('MaxLevelEqualToShort');
+				$class .= 'pass diffnote-custom';
+				$content = '<svg class="scaled-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path stroke="#3DC6A6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 5L8 15l-5-4"></path> </g></svg>';
+			} elseif ($obj->average_skill_score < $obj->required_rank) {
+				$title = $langs->trans('MaxLevelLowerThanShort');
+				$class .= 'fail diffnote-custom';
+				$content = $obj->average_skill_score - $obj->required_rank;
+			}
+
+			if ($obj->hidden == 1){
+				$Tab[$num]->hideskill = '<a class="reposition" style="color:black; font-size:2rem;" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&skill_id=' . $obj->skill_id . '&amp;action=toggle_hide_skill' . '">' . $eye_open .'</a>';
+				$Tab[$num]->hideskillbg = '<tr style="background:lightgray;">';
+			} else {
+				$Tab[$num]->hideskill = '<a class="reposition" style="color:black; font-size:2rem;" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&skill_id=' . $obj->skill_id . '&amp;action=toggle_hide_skill' . '">' . $eye_slash .'</a>';
+				$Tab[$num]->hideskillbg = '<tr>';
+			}
+
+			$Tab[$num]->result = '<span title="' . $title . '" class="classfortooltip ' . $class . ' note">' . $content . '</span>';
+
+			$num++;
+		}
+
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="noborder centpercent">';
+
+		print '<tr class="liste_titre">';
+		print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("TypeSkill") . ' </th>';
+		print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("Label") . '</th>';
+		print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("Description") . '</th>';
+		print '<th style="width:auto;text-align:center" class="liste_titre">' . $langs->trans("RequiredRank") . '</th>';
+		print '<th style="width:auto;text-align:center" class="liste_titre">' . 'Average employees skill score' . '</th>';
+		print '<th style="width:auto;text-align:center" class="liste_titre">' . 'Total employees pass standard' . '</th>';
+		print '<th style="width:auto;text-align:auto" class="liste_titre">' . $langs->trans("Result") . ' ' . $form->textwithpicto('', GetLegendSkills(), 1) . '</th>';
+		print '<th style="width:auto;text-align:center" class="liste_titre">Hide/Show Skill</th>';
+
+		print '</tr>';
+
+		$visible_skills = array_filter($Tab, function($obj) {
+			return $obj->hidden != 1;
+		});
+
+		$hidden_skills = array_filter($Tab, function($obj) {
+			return $obj->hidden == 1;
+		});
+
+		$Tab = array_merge($visible_skills, $hidden_skills);
+
+		$sk = new Skill($db);
+		foreach ($Tab as $t) {
+			$sk->fetch($t->skill_id);
+			print $t->hideskillbg;
+			print ' <td>' . Skill::typeCodeToLabel($t->skill_type) . '</td>';
+			print ' <td>' . $sk->getNomUrl(1) . '</td>';
+			print ' <td>' . $t->description . '</td>';
+			print ' <td align="center">' . $t->required_rank . '</td>';
+			print ' <td align="center">' . $t->userRankForSkill . '</td>';
+			print ' <td align="center">' . $t->skill_achievement_ratio . '</td>';
+			print ' <td>' . $t->result . '</td>';
+			print '<td align="center" class="liste_titre">';
+			print $t->hideskill;
+			print '</td>';
+			
+			print '</tr>';
+		}
+
+		print '</table>';
+	}
+
+	// End custom code
 
 
 	// Select mail models is same action as presend
