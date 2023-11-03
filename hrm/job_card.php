@@ -519,8 +519,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$Tab[$num]->skilllabel = $obj->skill_code;
 			$Tab[$num]->description = $obj->skill_description;
 			$Tab[$num]->hidden = $obj->hidden;
-			$Tab[$num]->userRankForSkill = '<span title="' . $obj->userRankForSkillDesc . '" class="radio_js_bloc_number TNote_1">' . $obj->average_skill_score . '</span>';
-			$Tab[$num]->required_rank = '<span title="' . $obj->required_rank_desc . '" class="radio_js_bloc_number TNote_1">' . $obj->required_rank . '</span>';
+			$Tab[$num]->userRankForSkill = '<span class="radio_js_bloc_number TNote_1">' . $obj->average_skill_score . '</span>';
+			$Tab[$num]->required_rank = '<span class="radio_js_bloc_number TNote_1">' . $obj->required_rank . '</span>';
 			$Tab[$num]->skill_achievement_ratio = '<span class="radio_js_bloc_number TNote_1">' . $obj->skill_achievement_ratio . '</span>';
 
 			if ($obj->average_skill_score > $obj->required_rank) {
