@@ -162,6 +162,7 @@ if (empty($reshook)) {
 		$hidden_skills = implode(',', $hidden_skills_arr);
 
 		$object->array_options['options_hiddenskill'] = $hidden_skills;
+		$object->tms = $db->idate(dol_now()); // modification date
 		$object->update($user);
 
 		header('Location: ' . $_SERVER['HTTP_REFERER']);
