@@ -188,7 +188,10 @@ $formproject = new FormProjets($db);
 
 $title = $langs->trans("Job");
 $help_url = '';
-llxHeader('', $title, $help_url);
+$css = array(); // custom code
+$css[] = '/hrm/css/style.css'; // custom code
+llxHeader('', $title, $help_url, '', 0, 0, '', $css); // custom code
+// llxHeader('', $title, $help_url);
 
 // Example : Adding jquery code
 // print '<script type="text/javascript" language="javascript">
