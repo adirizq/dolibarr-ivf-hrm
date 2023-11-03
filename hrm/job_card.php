@@ -476,7 +476,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	
 	// Hide/show skill feature
 
-	print '<h1>'. $object->array_options["options_hiddenskill"] . '</h1>';
 	print '<h2 style="margin-top: 2rem; color: var(--colortexttitlenotab);">Skills Achievement</h2>';
 
 	$sql = 'SELECT';
