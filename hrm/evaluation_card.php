@@ -439,6 +439,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	if ($object->status != Evaluation::STATUS_DRAFT) {
 		$sql = 'select';
+		$sql .= ' je.hiddenskill,';
+		$sql .= ' s.rowid,';
 
 		$sql .= ' AVG (CASE';
 		$sql .= ' WHEN ed.rankorder >= ed.required_rank THEN 1';
@@ -462,10 +464,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'hrm_evaluation as e';
 		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_evaluationdet as ed ON  e.rowid = ed.fk_evaluation';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_job_extrafields as je ON  e.fk_job = je.fk_object';
 		$sql .= ' JOIN llx_hrm_skill AS s ON ed.fk_skill = s.rowid';
 
 		$sql .= " WHERE e.rowid =" . ((int) $object->id);
-		$sql .= " AND ed.rankorder >= 0";
+		$sql .= " AND (je.hiddenskill IS NULL OR FIND_IN_SET(s.rowid, je.hiddenskill) = 0)";
 
 		$resql = $db->query($sql);
 
@@ -588,6 +591,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$sql .= '  e.fk_job,';
 		$sql .= '  j.label as "refjob",';
 		$sql .= '  ed.fk_skill,';
+		$sql .= '  je.hiddenskill,'; // custom code
+		$sql .= '  sk.rowid,'; // custom code
 
 		$sql .= '  sk.label as "skilllabel",';
 		$sql .= '  sk.skill_type,';
@@ -608,8 +613,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_user ON (skdet_user.fk_skill = sk.rowid AND skdet_user.rankorder = ed.rankorder)';
 		//$sql .= "  LEFT JOIN " . MAIN_DB_PREFIX . "hrm_skillrank as skr ON (j.rowid = skr.fk_object AND skr.fk_skill = ed.fk_skill AND skr.objecttype = 'job')";
 		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_skilldet as skdet_required ON (skdet_required.fk_skill = sk.rowid AND skdet_required.rankorder = ed.required_rank)';
+		$sql .= '  LEFT JOIN ' . MAIN_DB_PREFIX . 'hrm_job_extrafields as je ON  e.fk_job = je.fk_object'; // custom code
+
 		$sql .= "  WHERE e.rowid =" . ((int) $object->id);
-		$sql .= "  AND ed.rankorder >= 0"; // custom code
+		$sql .= "  AND (je.hiddenskill IS NULL OR FIND_IN_SET(sk.rowid, je.hiddenskill) = 0)"; // custom code
 
 		//      echo $sql;
 
