@@ -513,7 +513,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		while ($obj = $db->fetch_object($resql)) {
 			$Tab[$num] = new stdClass();
 			$class = '';
-			$Tab[$num]->id = $obj->id; 
 			$Tab[$num]->skill_type = $obj->skill_type;
 			$Tab[$num]->skill_id = $obj->skill_id;
 			$Tab[$num]->skilllabel = $obj->skill_code;
